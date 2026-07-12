@@ -21,7 +21,6 @@ export default function User({loaderData}: Route.ComponentProps) {
 
     return (
         <>
-            <Navbar/>
             <div className="max-w-4xl mx-auto px-4">
                 <div className="flex flex-col items-center my-8">
                     <div className="w-16 h-16 rounded-full bg-neutral-300"></div>

@@ -11,7 +11,6 @@ export function meta({ }: Route.MetaArgs) {
 export default function Home() {
     return (
         <>
-            <Navbar/>
             <div className="mx-auto max-w-sm w-full px-4 py-8">
                 <h3 className="text-3xl font-bold mb-6 text-neutral-700 text-center">Welcome to Postulate</h3>
                 {/* <input id="username" type="text" className="block border w-full px-4 py-3 border-neutral-200 outline-none focus:border-neutral-700 rounded mb-3" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />

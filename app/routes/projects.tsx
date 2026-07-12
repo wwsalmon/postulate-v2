@@ -15,7 +15,7 @@ export default function Projects({loaderData}: Route.ComponentProps) {
     const {cookie} = loaderData;
 
     const firstLoad = useRef(true);
-    
+
     const pb = createBrowserClient((() => {
         if (firstLoad.current) {
             firstLoad.current = false;
@@ -27,7 +27,6 @@ export default function Projects({loaderData}: Route.ComponentProps) {
 
     return (
         <>
-            <Navbar/>
             <div className="max-w-sm mx-auto px-4">
                 <h1>Projects</h1>
                 <p>Logged in as {pb.authStore.record?.username}</p>
