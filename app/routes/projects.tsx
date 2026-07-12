@@ -2,6 +2,7 @@ import { data, redirect } from "react-router";
 import { createBrowserClient, createServerClient } from "~/pocketbase";
 import type { Route } from "../routes/+types/projects";
 import Navbar from "../../components/Navbar";
+import { useRef } from "react";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -12,7 +13,17 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Projects({loaderData}: Route.ComponentProps) {
     const {cookie} = loaderData;
-    const pb = createBrowserClient(cookie);
+
+    const firstLoad = useRef(true);
+    
+    const pb = createBrowserClient((() => {
+        if (firstLoad.current) {
+            firstLoad.current = false;
+            return cookie;
+        } else {
+            return undefined;
+        }
+    })());
 
     return (
         <>
@@ -27,6 +38,6 @@ export default function Projects({loaderData}: Route.ComponentProps) {
 
 export async function loader({request}: Route.LoaderArgs) {
     const pb = createServerClient(request.headers.get("Cookie"));
-    if (!pb.authStore.isValid) return redirect("/login", {headers: {"Set-Cookies": pb.authStore.exportToCookie()}});
-    return data({cookie: pb.authStore.exportToCookie()}, {headers: {"Set-Cookie": pb.authStore.exportToCookie()}});
+    if (!pb.authStore.isValid) return redirect("/login", {headers: {"Set-Cookies": pb.authStore.exportToCookie({httpOnly: false})}});
+    return data({cookie: pb.authStore.exportToCookie({httpOnly: false})}, {headers: {"Set-Cookie": pb.authStore.exportToCookie({httpOnly: false})}});
 }

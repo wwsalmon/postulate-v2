@@ -33,6 +33,7 @@ export default function Login({loaderData}: Route.ComponentProps) {
 }
 
 export async function loader({request}: Route.LoaderArgs) {
+    console.log(request.headers.get("Cookie"));
     const pb = createServerClient(request.headers.get("Cookie"));
     if (pb.authStore.isValid) return redirect("/projects");
 
@@ -40,7 +41,7 @@ export async function loader({request}: Route.LoaderArgs) {
     let error = "";
     if (cookie) error = parseCookie(cookie)["POSTULATE_AUTH_ERROR"];
 
-    return data({error: error}, {headers: {"Set-Cookie": pb.authStore.exportToCookie()}});
+    return data({error: error}, {headers: {"Set-Cookie": pb.authStore.exportToCookie({httpOnly: false})}});
 }
 
 export async function action({request}: Route.ActionArgs) {
@@ -63,7 +64,7 @@ export async function action({request}: Route.ActionArgs) {
     }
 
     if (pb.authStore.isValid) {
-        return redirect("/projects", {headers: {"Set-Cookie": pb.authStore.exportToCookie() + ";POSTULATE_AUTH_ERROR="}});
+        return redirect("/projects", {headers: [["Set-Cookie", "POSTULATE_AUTH_ERROR="], ["Set-Cookie", pb.authStore.exportToCookie({httpOnly: false})]]});
     } else {
         return redirect("/login", {headers: {"Set-Cookie": `POSTULATE_AUTH_ERROR=Failed to log in`}});
     }

@@ -29,12 +29,15 @@ export function createServerClient(cookie?: string | null) {
 
 let singletonClient: PocketBase | null = null;
 
+let isLoggingOut = false;
+
 export function createBrowserClient(cookie?: string) {
     if (!POCKETBASE_API_URL) {
         throw new Error("Pocketbase API url not defined !");
     }
 
     const createNewClient = () => {
+        isLoggingOut = false;
         return new PocketBase(
             POCKETBASE_API_URL
         ) as PocketBase;
@@ -42,16 +45,25 @@ export function createBrowserClient(cookie?: string) {
 
     const _singletonClient = singletonClient ?? createNewClient();
 
-    if (cookie) _singletonClient.authStore.loadFromCookie(cookie);
+    if (cookie) {
+        isLoggingOut = false;
+        _singletonClient.authStore.loadFromCookie(cookie);
+    }
 
     if (typeof window === "undefined") return _singletonClient;
 
     if (!singletonClient) singletonClient = _singletonClient;
 
-    singletonClient.authStore.onChange(() => {
-        document.cookie = singletonClient!.authStore.exportToCookie({
-            httpOnly: false,
-        });
+    // only used for signing out
+    singletonClient.authStore.onChange((token, record) => {
+        if (!token && !record) {
+            isLoggingOut = true;
+            document.cookie = singletonClient!.authStore.exportToCookie({
+                httpOnly: false,
+            });
+        } else {
+            if (isLoggingOut) singletonClient?.authStore.clear();
+        }
     });
 
     return singletonClient;
