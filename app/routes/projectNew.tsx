@@ -4,6 +4,13 @@ import type { Route } from "./+types/projectNew";
 import { data, redirect, useSearchParams } from "react-router";
 import { Select } from "@headlessui/react";
 
+export function meta({ }: Route.MetaArgs) {
+    return [
+        { title: "New project | Postulate" },
+        { name: "description", content: "Repositories of open-source knowledge" },
+    ];
+}
+
 export default function projectNew() {
     const [searchParams, setSearchParams] = useSearchParams();
 
