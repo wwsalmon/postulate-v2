@@ -33,7 +33,6 @@ export default function Login({loaderData}: Route.ComponentProps) {
 }
 
 export async function loader({request}: Route.LoaderArgs) {
-    console.log(request.headers.get("Cookie"));
     const pb = createServerClient(request.headers.get("Cookie"));
     if (pb.authStore.isValid) return redirect("/projects");
 
