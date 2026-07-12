@@ -3,6 +3,13 @@ import { createBrowserClient, createServerClient } from "~/pocketbase";
 import type { Route } from "../routes/+types/projects";
 import Navbar from "../../components/Navbar";
 
+export function meta({ }: Route.MetaArgs) {
+    return [
+        { title: "Projects | Postulate" },
+        { name: "description", content: "Repositories of open-source knowledge" },
+    ];
+}
+
 export default function Projects({loaderData}: Route.ComponentProps) {
     const {cookie} = loaderData;
     const pb = createBrowserClient(cookie);
