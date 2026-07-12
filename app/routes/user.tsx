@@ -3,6 +3,7 @@ import Navbar from "../../components/Navbar";
 import type { Route } from "./+types/user";
 import { data } from "react-router";
 import Button from "../../components/Button";
+import { ArrowRight } from "lucide-react";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {user} = loaderData;
@@ -14,7 +15,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function User({loaderData}: Route.ComponentProps) {
-    const {user} = loaderData;
+    const {user, projects} = loaderData;
     const pb = createBrowserClient();
     const thisUser = pb.authStore?.record;
     const isOwnProfile = thisUser && thisUser.id === user.id;
@@ -34,6 +35,18 @@ export default function User({loaderData}: Route.ComponentProps) {
                         <Button className="ml-auto" small={true}>+ New</Button>
                     )}
                 </div>
+                <div className="grid grid-cols-4 mt-4 gap-3">
+                    {projects.items.map(project => (
+                        <div key={project.id} className="border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
+                            <h3 className="underline font-bold text-neutral-700">{project.name}</h3>
+                            <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
+                        </div>
+                    ))}
+                    <div className="flex items-center justify-center px-4 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
+                        <span>All repos ({projects.totalItems})</span>
+                        <ArrowRight size={16}/>
+                    </div>
+                </div>
             </div>
         </>
     )
@@ -49,8 +62,9 @@ export async function loader({request, params}: Route.LoaderArgs) {
     const pb = createServerClient();
     try {
         const user = await pb.collection("users").getFirstListItem(`username="${trueUsername}"`);
+        const projects = await pb.collection("projects").getList(1, 7, {filter: `parent="${user.id}"`});
         if (!user) throw data({message: "User not found", status: 404});
-        return data({user: user});
+        return data({user: user, projects: projects});
     } catch (e) {
         throw data({message: e, status: 404});
     }
