@@ -7,8 +7,9 @@ import ReactDOM from "react-dom";
 import normalizeUrl from "normalize-url";
 import Button from "../components/Button";
 import { Edit, Unlink } from "lucide-react";
+import type { CustomEditor } from "./slate";
 
-export default function withLinks(editor) {
+export default function withLinks(editor: CustomEditor) {
     const {insertData, insertText, isInline} = editor;
 
     editor.isInline = element => {
@@ -36,13 +37,13 @@ export default function withLinks(editor) {
     return editor;
 };
 
-export const insertLink = (editor, url) => {
+export const insertLink = (editor: CustomEditor, url: string) => {
     if (editor.selection) {
         wrapLink(editor, normalizeUrl(url));
     }
 };
 
-const getActiveLink = editor => {
+const getActiveLink = (editor: CustomEditor) => {
     // @ts-ignore
     const [link] = Editor.nodes(editor, {
         match: n => Element.isElement(n) && n.type === "a",
@@ -50,13 +51,13 @@ const getActiveLink = editor => {
     return link as NodeEntry<Element>;
 };
 
-const unwrapLink = editor => {
+const unwrapLink = (editor: CustomEditor) => {
     Transforms.unwrapNodes(editor, {
         match: n => Element.isElement(n) && n.type === "a",
     });
 };
 
-const wrapLink = (editor, url) => {
+const wrapLink = (editor: CustomEditor, url: string) => {
     const activeLink = getActiveLink(editor);
 
     if (!!activeLink) {
@@ -79,7 +80,7 @@ const wrapLink = (editor, url) => {
     }
 };
 
-const updateLink = (editor, url) => {
+const updateLink = (editor: CustomEditor, url: string) => {
     const {selection} = editor;
 
     const activeLink = getActiveLink(editor);
@@ -91,7 +92,7 @@ const updateLink = (editor, url) => {
     Transforms.select(editor, path);
     unwrapLink(editor);
     wrapLink(editor, normalizeUrl(url));
-    Transforms.setSelection(editor, selection);
+    if (selection) Transforms.setSelection(editor, selection);
 };
 
 export const SlateLinkBalloon = () => {
@@ -110,10 +111,14 @@ export const SlateLinkBalloon = () => {
             return;
         }
 
+        const domSelection = window.getSelection();
+
         if (
             !selection ||
             !ReactEditor.isFocused(editor as ReactEditor) ||
-            !activeLink
+            !activeLink ||
+            !activeLink[0].url ||
+            !domSelection
         ) {
             el.style.opacity = "0";
             setTimeout(() => {
@@ -124,7 +129,6 @@ export const SlateLinkBalloon = () => {
 
         setLink(activeLink[0].url);
         setNewLink(activeLink[0].url);
-        const domSelection = window.getSelection();
         const domRange = domSelection.getRangeAt(0);
         const rect = domRange.getBoundingClientRect();
         el.style.display = "flex";
@@ -134,6 +138,7 @@ export const SlateLinkBalloon = () => {
         window.pageXOffset -
         el.offsetWidth / 2 +
         rect.width / 2}px`;
+
     }, [ref.current, editor.selection]);
 
     return (

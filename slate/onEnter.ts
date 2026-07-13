@@ -1,16 +1,17 @@
-import {type KeyboardEvent} from "react";
-import {ReactEditor} from "slate-react";
-import {HistoryEditor} from "slate-history";
-import {Transforms, Node, Text, Editor} from "slate";
-import {insertEmptyLine, onEnterList} from "./withList";
+import { type KeyboardEvent } from "react";
+import { Node, Text, Transforms } from "slate";
+import type { CustomEditor } from "./slate";
+import { insertEmptyLine, onEnterList } from "./withList";
 
-export const onEnter = (e: KeyboardEvent<HTMLDivElement>, editor: ReactEditor & HistoryEditor) => {
+export const onEnter = (e: KeyboardEvent<HTMLDivElement>, editor: CustomEditor) => {
     if (e.key !== "Enter") return false;
     e.preventDefault();
     if (e.shiftKey) {
         editor.insertText("\n");
     } else {
         if (onEnterList(editor)) return true;
+
+        if (!editor.selection) return false;
 
         const selectedLeaf = Node.descendant(editor, editor.selection.anchor.path);
 

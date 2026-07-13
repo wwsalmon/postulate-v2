@@ -14,6 +14,8 @@ const withTex = (editor: CustomEditor) => {
             match: n => Editor.isBlock(editor, n),
         });
 
+        if (!block?.length || !editor.selection) return;
+
         if (Element.isElement(block[0]) && block[0].type !== "inlineTex") {
             const thisLeaf = Editor.leaf(editor, editor.selection.anchor.path);
             const thisText = thisLeaf[0].text;
@@ -32,13 +34,16 @@ const withTex = (editor: CustomEditor) => {
     }
 
     editor.insertText = (text) => {
-        const {selection} = editor;
-        const {anchor} = selection;
+        if (!editor.selection) return;
+        const selection = editor.selection;
+        const anchor = selection.anchor;
         const {path, offset} = anchor;
 
         if (offset > 0 && selection && Range.isCollapsed(selection)) {
             if (text === "$") {
                 const block = Editor.above(editor, {mode: "lowest"});
+
+                if (!block?.length) return;
 
                 if (Element.isElement(block[0]) && (block[0].type === "blockTex" || block[0].type === "codeblock")) return insertText(text);
 
@@ -81,6 +86,8 @@ const withTex = (editor: CustomEditor) => {
                         mode: "lowest",
                     });
 
+                    if (!block?.length) return;
+
                     if (Element.isElement(block[0]) && block[0].type !== "inlineTex" && block[0].type !== "blockTex" && block[0].type !== "codeblock") {
                         Transforms.select(editor, {anchor, focus: {path: path, offset: offset - 1}});
                         Transforms.delete(editor);
@@ -99,6 +106,7 @@ const withTex = (editor: CustomEditor) => {
 
     editor.normalizeNode = (entry) => {
         if (Element.isElement(entry[0]) && entry[0].type === "inlineTex") {
+            if (!editor.selection) return;
             const thisLeaf = Editor.leaf(editor, editor.selection.anchor.path);
             const thisText = thisLeaf[0].text;
 
@@ -159,7 +167,8 @@ export function BlockTex({
             </div>
             {!showSource && (
                 <div className={"pointer-events-none " + (isEmpty ? "opacity-25" : "")} contentEditable={false}>
-                    <BlockMath math={isEmpty ? "\\LaTeX" : math}/>
+                    <BlockMath>{isEmpty ? "\\LaTeX" : math}</BlockMath>
+                    {/* <BlockMath math="\frac{1}{2}"/> */}
                 </div>
             )}
         </div>

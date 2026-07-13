@@ -1,6 +1,7 @@
 import {isBlockActive} from "./onHotkey";
+import type { CustomEditor } from "./slate";
 
-export const withCodeblocks = editor => {
+export const withCodeblocks = (editor: CustomEditor) => {
     const {insertData, insertText} = editor;
 
     editor.insertData = data => {

@@ -1,5 +1,6 @@
 import {Editor, Element, Element as SlateElement, Node, Point, Range, Transforms} from "slate";
 import {onDeleteBackwardsList, onShortcutSpaceList} from "./withList";
+import type { CustomEditor } from "./slate";
 
 export type BulletedListElement = {
     type: "ul",
@@ -11,7 +12,7 @@ export type NumberedListElement = {
     children: Node[],
 }
 
-const mdShortcuts = {
+const mdShortcuts: {[key: string]: string} = {
     "*": "li",
     "-": "li",
     "+": "li",
@@ -27,7 +28,7 @@ const mdShortcuts = {
     "$$": "blockTex",
 };
 
-export const withShortcuts = editor => {
+export const withShortcuts = (editor: CustomEditor) => {
     const {deleteBackward, insertText} = editor;
 
     editor.insertText = text => {

@@ -5,22 +5,23 @@ import {HistoryEditor} from "slate-history";
 import {insertLink} from "./withLinks";
 import {isListNode} from "./withList";
 import { type KeyboardEvent } from "react";
+import type { CustomEditor } from "./slate";
 
-const markHotkeys = {
+const markHotkeys: {[key: string]: string} = {
     "mod+b": "bold",
     "mod+i": "italic",
     "mod+u": "underline",
     "mod+`": "code",
 };
 
-const blockHotkeys = {
+const blockHotkeys: {[key: string]: string} = {
     "mod+alt+1": "h1",
     "mod+alt+2": "h2",
     "mod+alt+3": "h3",
     "mod+alt+4": "h4",
 };
 
-const toggleMark = (editor, format) => {
+const toggleMark = (editor: CustomEditor, format: string) => {
     const isActive = isMarkActive(editor, format);
 
     if (isActive) {
@@ -30,12 +31,13 @@ const toggleMark = (editor, format) => {
     }
 };
 
-const isMarkActive = (editor, format) => {
+const isMarkActive = (editor: CustomEditor, format: string) => {
     const marks = Editor.marks(editor);
+    // @ts-ignore indexing problem
     return marks ? marks[format] === true : false;
 };
 
-const toggleBlock = (editor, format) => {
+const toggleBlock = (editor: CustomEditor, format: string) => {
     const isActive = isBlockActive(editor, format);
     const isList = isListNode(format);
 
@@ -54,7 +56,7 @@ const toggleBlock = (editor, format) => {
     }
 };
 
-export const isBlockActive = (editor, format) => {
+export const isBlockActive = (editor: CustomEditor, format: string) => {
     // @ts-ignore
     const [match] = Editor.nodes(editor, {
         match: n => Element.isElement(n) && n.type === format,

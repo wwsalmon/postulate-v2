@@ -10,6 +10,7 @@ import { onEnter } from "./onEnter";
 import withDeserializeMD from "./withDeserializeMD";
 import { withCodeblocks } from "./withCodeblocks";
 import withTex, { BlockTex, InlineTex } from "./withTex";
+import "katex/dist/katex.min.css";
 
 const initialValue: Node[] & Descendant[] = [
     {

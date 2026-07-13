@@ -3,8 +3,9 @@ import {HistoryEditor} from "slate-history";
 import {Editor, Element, Node, Path, Point, Text, Transforms} from "slate";
 import {type KeyboardEvent} from "react";
 import {isNodeEmpty} from "./withDeserializeMD";
+import type { CustomEditor, CustomElement } from "./slate";
 
-export const onShortcutSpaceList = (editor: ReactEditor & HistoryEditor, type: string, isNumbered: boolean) => {
+export const onShortcutSpaceList = (editor: CustomEditor, type: string, isNumbered: boolean) => {
     const isList = type === "li";
 
     if (isList) {
@@ -18,10 +19,10 @@ export const onShortcutSpaceList = (editor: ReactEditor & HistoryEditor, type: s
     }
 }
 
-export const onDeleteBackwardsList = (editor: ReactEditor & HistoryEditor, type: string) => {
+export const onDeleteBackwardsList = (editor: CustomEditor, type: string) => {
     const isList = type === "li";
 
-    if (!isList) return false;
+    if (!isList || !editor.selection) return false;
 
     const thisPath = editor.selection.anchor.path;
     const thisIndex = thisPath[thisPath.length - 2];
@@ -68,16 +69,20 @@ export const onDeleteBackwardsList = (editor: ReactEditor & HistoryEditor, type:
     }
 }
 
-export const onEnterList = (editor: ReactEditor & HistoryEditor) => {
+export const onEnterList = (editor: CustomEditor) => {
     const listType = getListItemType(editor);
     if (listType === false) return false;
     const isNumbered = listType.isNumbered;
+
+    if (!editor.selection) return false;
 
     const selectedLeaf = Node.descendant(editor, editor.selection.anchor.path);
 
     const block = Editor.above(editor, {
         match: n => Editor.isBlock(editor, n),
     });
+
+    if (!block) return false;
 
     if (Text.isText(selectedLeaf) && selectedLeaf.text.length === editor.selection.anchor.offset) {
         // if empty li
@@ -124,7 +129,7 @@ export const onTabList = (e: KeyboardEvent<HTMLDivElement>, editor: ReactEditor 
     }
 }
 
-export const isListNode = (type: string) => ["ul", "ol"].includes(type);
+export const isListNode = (type: any) => typeof type === "string" && ["ul", "ol"].includes(type);
 
 const indentListItem = (editor: ReactEditor & HistoryEditor, isNumberedInit?: boolean) => {
     let isNumbered;
@@ -135,6 +140,8 @@ const indentListItem = (editor: ReactEditor & HistoryEditor, isNumberedInit?: bo
         if (listType === false) return false;
         isNumbered = listType.isNumbered;
     }
+
+    if (!editor.selection) return false;
 
     const thisPath = editor.selection.anchor.path;
     const thisIndex = thisPath[thisPath.length - 2];
@@ -153,12 +160,12 @@ const indentListItem = (editor: ReactEditor & HistoryEditor, isNumberedInit?: bo
     return true;
 }
 
-const unIndentListItem = (editor: ReactEditor & HistoryEditor, at?: Path) => {
+const unIndentListItem = (editor: CustomEditor, at?: Path) => {
     const listType = getListItemType(editor);
     if (listType === false) return false;
     const isNumbered = listType.isNumbered;
 
-    let levelsOptions = {match: n => isListNode(n.type), reverse: true};
+    let levelsOptions: {[key: string]: any} = {match: (n: CustomElement) => isListNode(n.type), reverse: true};
     if (at) levelsOptions["at"] = at;
 
     const thisLevels = Editor.levels(editor, levelsOptions);
@@ -172,8 +179,8 @@ const unIndentListItem = (editor: ReactEditor & HistoryEditor, at?: Path) => {
         return false;
     }
 
-    let unwrapOptions = {
-        match: n => n.type === (isNumbered ? "ol" : "ul"),
+    let unwrapOptions: {[key: string]: any} = {
+        match: (n: CustomElement) => n.type === (isNumbered ? "ol" : "ul"),
         split: true,
     }
     if (at) unwrapOptions["at"] = at;
@@ -181,7 +188,12 @@ const unIndentListItem = (editor: ReactEditor & HistoryEditor, at?: Path) => {
     Transforms.unwrapNodes(editor, unwrapOptions);
 
     // un-indent following list if it exists
-    const thisPath = at ? at : editor.selection.anchor.path;
+    let thisPath;
+    if (at) thisPath = at;
+    else {
+        if (!editor.selection) return false;
+        thisPath = editor.selection.anchor.path;
+    }
     const thisIndex = thisPath[thisPath.length - 2];
     const parentNode = Editor.node(editor, thisPath.slice(0, thisPath.length - 2));
     const nextNode = Element.isElement(parentNode[0]) && (parentNode[0].children.length > thisIndex + 1) && Editor.node(editor, [...thisPath.slice(0, thisPath.length - 2), thisIndex + 1]);
@@ -194,7 +206,7 @@ const unIndentListItem = (editor: ReactEditor & HistoryEditor, at?: Path) => {
     return true;
 }
 
-export const withLists = (editor: ReactEditor & HistoryEditor) => {
+export const withLists = (editor: CustomEditor) => {
     const {normalizeNode} = editor;
 
     editor.normalizeNode = (entry) => {
@@ -310,7 +322,7 @@ export const withLists = (editor: ReactEditor & HistoryEditor) => {
     return editor;
 }
 
-const getListItemType = (editor: ReactEditor & HistoryEditor) => {
+const getListItemType = (editor: CustomEditor) => {
     const parentList = Editor.above(editor, {
         match: n => Editor.isBlock(editor, n) && isListNode(n.type),
     });
@@ -322,7 +334,7 @@ const getListItemType = (editor: ReactEditor & HistoryEditor) => {
     return {isNumbered};
 }
 
-export function insertEmptyLine(editor: ReactEditor & HistoryEditor, type?: string, at?: number[]) {
+export function insertEmptyLine(editor: CustomEditor, type?: string, at?: number[]) {
     const newLine = {
         type: type || "p",
         children: [{text: ""}],
