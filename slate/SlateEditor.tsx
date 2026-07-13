@@ -11,6 +11,7 @@ import withDeserializeMD from "./withDeserializeMD";
 import { withCodeblocks } from "./withCodeblocks";
 import withTex, { BlockTex, InlineTex } from "./withTex";
 import "katex/dist/katex.min.css";
+import withImages, {Image} from "./withImages";
 
 const initialValue: Node[] & Descendant[] = [
     {
@@ -21,14 +22,16 @@ const initialValue: Node[] & Descendant[] = [
 
 // leaving out withImages
 export const customSlateEditorFactory = () => 
-    withTex(
-        withLists(
-            withCodeblocks(
-                withLinks(
-                    withShortcuts(
-                        withDeserializeMD(
-                            withHistory(
-                                withReact(createEditor() as ReactEditor)
+    withImages(
+        withTex(
+            withLists(
+                withCodeblocks(
+                    withLinks(
+                        withShortcuts(
+                            withDeserializeMD(
+                                withHistory(
+                                    withReact(createEditor() as ReactEditor)
+                                )
                             )
                         )
                     )
@@ -100,8 +103,8 @@ const Element = ({attributes, children, element}: RenderElementProps) => {
             return <InlineTex attributes={attributes} element={element}>{children}</InlineTex>;
         case "blockTex":
             return <BlockTex attributes={attributes} element={element}>{children}</BlockTex>;
-        // case "img":
-        //     return <Image attributes={attributes} element={element}>{children}</Image>;
+        case "img":
+            return <Image attributes={attributes} element={element}>{children}</Image>;
         default:
             return <p {...attributes}>{children}</p>;
     }
