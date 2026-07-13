@@ -6,4 +6,5 @@ export default [
     route("/projects", "routes/projects.tsx"),
     route("/projects/new", "routes/projectNew.tsx"),
     route("/:username", "routes/user.tsx"),
+    route("/editor", "routes/editor.tsx"),
 ] satisfies RouteConfig;
