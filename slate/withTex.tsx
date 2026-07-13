@@ -2,9 +2,7 @@ import {Editor, Element, Node, Point, Range, Transforms} from "slate";
 import type { CustomEditor, CustomElement } from "./slate";
 import { useFocused, useSelected } from "slate-react";
 import type { ReactNode } from "react";
-import ReactKatex from "react-katex";
-// import {BlockMath, InlineMath} from "react-katex";
-const {BlockMath, InlineMath} = ReactKatex;
+import TeX from '@matejmazur/react-katex';
 
 const withTex = (editor: CustomEditor) => {
     const {insertText, isInline, normalizeNode, deleteBackward} = editor;
@@ -167,7 +165,7 @@ export function BlockTex({
             </div>
             {!showSource && (
                 <div className={"pointer-events-none " + (isEmpty ? "opacity-25" : "")} contentEditable={false}>
-                    <BlockMath>{isEmpty ? "\\LaTeX" : math}</BlockMath>
+                    <TeX block={true}>{isEmpty ? "\\LaTeX" : math}</TeX>
                     {/* <BlockMath math="\frac{1}{2}"/> */}
                 </div>
             )}
@@ -209,7 +207,7 @@ export function InlineTex({
             </span>
             {!showSource && (
                 <span contentEditable={false} className={"pointer-events-none " + (isEmpty ? "opacity-25" : "")}>
-                    <InlineMath math={isEmpty ? "\\LaTeX" : math}/>
+                    <TeX block={false} math={isEmpty ? "\\LaTeX" : math}/>
                 </span>
             )}
         </div>
