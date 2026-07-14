@@ -6,6 +6,7 @@ import { Menu, MenuButton, MenuItems } from "@headlessui/react";
 import { Edit, EllipsisVertical } from "lucide-react";
 import { CustomMenuItem } from "../../components/Navbar";
 import equal from "deep-equal";
+import ProjectNavbar from "../../components/ProjectNavbar";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {post, project} = loaderData;
@@ -25,47 +26,50 @@ export default function Post({loaderData}: Route.ComponentProps) {
     const isDraftUpdated = !!draftPost && equal(draftPost.slateBody, post.slateBody);
 
     return (
-        <div className="lg:flex max-w-5xl mx-auto gap-8 pt-12">
-            <div className="max-w-3xl w-full shrink-0">
-                <h1 className="text-4xl font-bold text-neutral-700">{post.title}</h1>
-                <div className="flex items-center gap-4 mt-6 mb-4 border-b border-neutral-200 pb-6">
-                    <span className="text-neutral-500">{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
-                    <span className="text-neutral-500 mr-auto">Updated {new Date(post.updated).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
-                    {isOwner && !!draftPost && (
-                        <>
-                            {!isDraftUpdated && (
-                                <span className="text-neutral-500 text-sm">Unpublished changes in draft</span>
-                            )}
-                            <Menu>
-                                <MenuButton className="p-2 rounded transition hover:bg-neutral-100">
-                                    <EllipsisVertical size={16}></EllipsisVertical>
-                                </MenuButton>
-                                <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200">
-                                    <CustomMenuItem to={`/edit/${draftPost.id}`}>
-                                        <Edit size={16}/>
-                                        Edit
-                                    </CustomMenuItem>
-                                </MenuItems>
-                            </Menu>
-                        </>
+        <>
+            <ProjectNavbar user={user} project={project}/>
+            <div className="lg:flex max-w-5xl mx-auto gap-8 pt-12">
+                <div className="max-w-3xl w-full shrink-0">
+                    <h1 className="text-4xl font-bold text-neutral-700">{post.title}</h1>
+                    <div className="flex items-center gap-4 mt-6 mb-4 border-b border-neutral-200 pb-6">
+                        <span className="text-neutral-500">{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
+                        <span className="text-neutral-500 mr-auto">Updated {new Date(post.updated).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
+                        {isOwner && !!draftPost && (
+                            <>
+                                {!isDraftUpdated && (
+                                    <span className="text-neutral-500 text-sm">Unpublished changes in draft</span>
+                                )}
+                                <Menu>
+                                    <MenuButton className="p-2 rounded transition hover:bg-neutral-100">
+                                        <EllipsisVertical size={16}></EllipsisVertical>
+                                    </MenuButton>
+                                    <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200">
+                                        <CustomMenuItem to={`/edit/${draftPost.id}`}>
+                                            <Edit size={16}/>
+                                            Edit
+                                        </CustomMenuItem>
+                                    </MenuItems>
+                                </Menu>
+                            </>
+                        )}
+                    </div>
+                    <SlateReadOnly value={post.slateBody} projectId={project.id}/>
+                </div>
+                <div className="max-w-70 grow">
+                    <h3 className="font-medium text-neutral-700">Project</h3>
+                    <Link to={`/@${user.username}/${project.slug}`} className="text-xl font-bold text-neutral-700 my-2 block">{project.name}</Link>
+                    <p className="text-neutral-500 mb-12">{project.description}</p>
+                    {projectPosts.items.length ? projectPosts.items.map(projectPost => (
+                        <Link to={`/@${user.username}/${project.slug}/${projectPost.slug}`} key={projectPost.id} className="block my-4 opacity-50 hover:opacity-100">
+                            <h4 className="font-semibold leading-none">{projectPost.title}</h4>
+                            <div><span className="text-sm text-neutral-500">{new Date(projectPost.created).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</span></div>
+                        </Link>
+                    )) : (
+                        <div><span className="text-neutral-500">No posts</span></div>
                     )}
                 </div>
-                <SlateReadOnly value={post.slateBody} projectId={project.id}/>
             </div>
-            <div className="max-w-70 grow">
-                <h3 className="font-medium text-neutral-700">Project</h3>
-                <Link to={`/@${user.username}/${project.slug}`} className="text-xl font-bold text-neutral-700 my-2 block">{project.name}</Link>
-                <p className="text-neutral-500 mb-12">{project.description}</p>
-                {projectPosts.items.length ? projectPosts.items.map(projectPost => (
-                    <Link to={`/@${user.username}/${project.slug}/${projectPost.slug}`} key={projectPost.id} className="block my-4 opacity-50 hover:opacity-100">
-                        <h4 className="font-semibold leading-none">{projectPost.title}</h4>
-                        <div><span className="text-sm text-neutral-500">{new Date(projectPost.created).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</span></div>
-                    </Link>
-                )) : (
-                    <div><span className="text-neutral-500">No posts</span></div>
-                )}
-            </div>
-        </div>
+        </>
     )
 }
 
