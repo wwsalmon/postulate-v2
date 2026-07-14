@@ -1,6 +1,7 @@
 import { data, Link } from "react-router";
-import { createServerClient } from "~/pocketbase";
+import { createBrowserClient, createServerClient } from "~/pocketbase";
 import type { Route } from "../routes/+types/projects";
+import { LinkButton } from "../../components/Button";
 
 export function meta({ }: Route.MetaArgs) {
     return [
@@ -12,6 +13,10 @@ export function meta({ }: Route.MetaArgs) {
 export default function Projects({loaderData}: Route.ComponentProps) {
     const {user, projects} = loaderData;
 
+    const pb = createBrowserClient();
+
+    const isOwner = pb.authStore.record?.id === user.id;
+
     return (
         <>
             <div className="max-w-4xl mx-auto px-4">
@@ -19,7 +24,12 @@ export default function Projects({loaderData}: Route.ComponentProps) {
                     <div className="w-8 h-8 rounded-full bg-neutral-300"></div>
                     <h1 className="text-neutral-700 text-xl font-bold leading-none text-center underline">{user.name}</h1>
                 </Link>
-                <h3 className="text-neutral-500 font-medium">All projects ({projects.length})</h3>
+                <div className="flex items-center">
+                    <h3 className="text-neutral-500 font-medium">All projects ({projects.length})</h3>
+                    {isOwner && (
+                        <LinkButton className="ml-auto" small={true} to={`/@${user.username}/projects/new`}>+ New project</LinkButton>
+                    )}
+                </div>
                 <div className="grid grid-cols-4 mt-4 gap-3">
                     {projects.map(project => (
                         <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="block border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
