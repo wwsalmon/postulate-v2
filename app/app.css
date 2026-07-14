@@ -14,3 +14,7 @@ body {
     color-scheme: dark;
   }
 }
+
+#nprogress .bar {
+    @apply bg-neutral-700!;
+}
