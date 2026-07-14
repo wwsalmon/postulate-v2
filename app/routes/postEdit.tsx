@@ -8,6 +8,9 @@ import { useState } from "react";
 import { type Descendant } from "slate";
 import Button, { LinkButton } from "../../components/Button";
 import { ArrowLeft, Delete, Trash } from "lucide-react";
+import {format, isEqual} from "date-fns";
+import short from "short-uuid";
+import equal from "deep-equal";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {draftPost} = loaderData;
@@ -19,13 +22,57 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function PostEdit({loaderData}: Route.ComponentProps) {
-    const {draftPost, project, user} = loaderData;
+    const {draftPost, project, user, post} = loaderData;
 
     const pb = createBrowserClient();
 
     const [savedSlateBody, setSavedSlateBody] = useState<Descendant[]>(draftPost.slateBody);
     const [savedTitle, setSavedTitle] = useState<string>(draftPost.title);
     const [draftStatus, setDraftStatus] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [publishedPost, setPublishedPost] = useState(post);
+
+    async function onPublish() {
+        setIsLoading(true);
+        try {
+            // if post already exists, update
+            // else create new
+            if (publishedPost) {
+                const thisPost = await pb.collection("posts").update(publishedPost.id, {
+                    title: savedTitle,
+                    slateBody: savedSlateBody,
+                    plaintext: getPlainTextFromSlateValue(savedSlateBody),
+                });
+
+                setPublishedPost(thisPost);
+            } else {
+                const slug = format(new Date(), "yyyy-MM-dd") +
+                    "-" + encodeURIComponent(savedTitle.split(" ").slice(0, 5).join("-")) +
+                    "-" + short.generate();
+
+                const thisPost = await pb.collection("posts").create({
+                    title: savedTitle,
+                    slateBody: savedSlateBody,
+                    plaintext: getPlainTextFromSlateValue(savedSlateBody),
+                    slug: slug,
+                    project: project.id,
+                });
+
+                setPublishedPost(thisPost);
+
+                await pb.collection("draftPosts").update(draftPost.id, {
+                    post: thisPost.id,
+                });
+            }
+        } catch (e) {
+            window.alert(`Failed to publish: ${e}`);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const isPublished = !!publishedPost;
+    const isPublishedEqual = isPublished && equal(publishedPost.slateBody, savedSlateBody) && publishedPost.title === savedTitle;
 
     return (
         <>
@@ -34,12 +81,23 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
                     <ArrowLeft size={16}/>
                     <span>{project.name}</span>
                 </Link>
-                <span className="text-neutral-500 text-sm">{draftStatus}</span>
+                <span className="text-neutral-500 text-sm">
+                    {draftStatus}
+                </span>
+                {isPublished ? (
+                    <Link to={`/@${user.username}/${project.slug}/${publishedPost.slug}`} className="text-neutral-500 text-sm underline">
+                        {isPublishedEqual ? "Published" : "Unpublished changes"}
+                    </Link>    
+                ) : (
+                    <span className="text-neutral-500 text-sm">
+                        "Unpublished"
+                    </span>
+                )}
                 <button className="text-red-500 border-b pb-1 text-sm opacity-50 hover:opacity-100 flex items-center gap-1">
                     <Trash size={14}></Trash>
                     Delete post
                 </button>
-                <Button className="" small={true}>Publish</Button>
+                <Button className="" small={true} onClick={onPublish} isLoading={isLoading} isDisabled={isPublishedEqual || draftStatus !== "Draft saved"}>{publishedPost ? "Save" : "Publish"}</Button>
             </div>
             <div className="max-w-3xl mx-auto px-4 my-8">
                 <AutosavingField
@@ -73,10 +131,11 @@ export async function loader({request, params}: Route.LoaderArgs) {
     try {
         const draftPost = await pb.collection("draftPosts").getOne(id);
         if (!draftPost) throw data({message: "Draft post not found", status: 404});
+        const post = draftPost.post ? await pb.collection("posts").getOne(draftPost.post) : null;
         const project = await pb.collection("projects").getOne(draftPost.project);
         if (!project) throw data({message: "Project not found", status: 404});
         const user = await pb.collection("users").getOne(project.parent);
-        return data({project, draftPost, user});
+        return data({project, draftPost, post, user});
     } catch (e) {
         throw data({message: e, status: 404});
     }
