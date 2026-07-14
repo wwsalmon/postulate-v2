@@ -1,9 +1,18 @@
-import { createBrowserClient, createServerClient } from "~/pocketbase";
-import type { Route } from "../routes/+types/project";
-import { data, Link, redirect, useNavigate } from "react-router";
-import Button from "../../components/Button";
-import { useState } from "react";
 import equal from "deep-equal";
+import { useState } from "react";
+import { data, Link, useNavigate } from "react-router";
+import { createBrowserClient, createServerClient } from "~/pocketbase";
+import Button from "../../components/Button";
+import type { Route } from "../routes/+types/project";
+
+export function meta({ loaderData }: Route.MetaArgs) {
+    const {user, project} = loaderData;
+
+    return [
+        { title: `${project.name} | ${user.name}` },
+        { name: "description", content: "Postulate: Repositories of open-source knowledge" },
+    ];
+}
 
 export default function Project({loaderData}: Route.ComponentProps) {
     const {user, project, posts, draftPosts} = loaderData;
