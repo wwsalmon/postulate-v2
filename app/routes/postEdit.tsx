@@ -9,6 +9,15 @@ import { type Descendant } from "slate";
 import Button, { LinkButton } from "../../components/Button";
 import { ArrowLeft, Delete, Trash } from "lucide-react";
 
+export function meta({ loaderData }: Route.MetaArgs) {
+    const {draftPost} = loaderData;
+
+    return [
+        { title: `Editing: ${draftPost.title} | Postulate` },
+        { name: "description", content: "Repositories of open-source knowledge" },
+    ];
+}
+
 export default function PostEdit({loaderData}: Route.ComponentProps) {
     const {draftPost, project, user} = loaderData;
 
