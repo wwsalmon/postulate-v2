@@ -3,6 +3,7 @@ import type { Route } from "../routes/+types/project";
 import { data, Link, redirect, useNavigate } from "react-router";
 import Button from "../../components/Button";
 import { useState } from "react";
+import equal from "deep-equal";
 
 export default function Project({loaderData}: Route.ComponentProps) {
     const {user, project, posts, draftPosts} = loaderData;
@@ -35,8 +36,32 @@ export default function Project({loaderData}: Route.ComponentProps) {
             setIsLoading(false);
         }
     }
-    
-    console.log(posts, draftPosts);
+
+    function DraftPost({draftPost}: {draftPost: any}) {
+        const post = !!draftPost.id && posts.find(d => d.id === draftPost.post);
+        const isDraftUpdated = !!post && equal(draftPost.slateBody, post.slateBody);
+
+        return (
+            <Link to={post ? `/@${user.username}/${project.slug}/${post.slug}` : `/edit/${draftPost.id}`} key={draftPost.id} className="block my-4">
+                <h3 className="text-neutral-700 font-semibold mb-1">{draftPost.title}</h3>
+                <div className="flex items-center gap-x-3">
+                    {!post && (
+                        <div className="px-1 py-0.75 rounded border border-amber-400 bg-amber-200 text-black/80 font-bold text-xs">
+                            <span>Draft</span>
+                        </div>
+                    )}
+                    <div className="text-neutral-500 text-sm"><span>{new Date(draftPost.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
+                    {post && !isDraftUpdated ? (
+                        <div className="px-1 py-0.75 rounded border border-green-400 bg-green-200 text-black/80 font-bold text-xs">
+                            <span>Unpublished changes</span>
+                        </div>
+                    ) : (
+                        <div className="text-neutral-500 text-sm"><span>Published</span></div>
+                    )}
+                </div>
+            </Link>
+        )
+    }
 
     return (
         <div className="max-w-xl mx-auto px-4 w-full">
@@ -48,17 +73,21 @@ export default function Project({loaderData}: Route.ComponentProps) {
                     <Button small={true} isLoading={isLoading} onClick={onNewPost}>+ New post</Button>
                 )}
             </div>
-            {isOwner && draftPosts.map(post => (
-                <Link to={`/edit/${post.id}`} key={post.id} className="block my-4">
-                    <h3 className="text-neutral-700 font-semibold mb-1">{post.title}</h3>
+            {(isOwner && draftPosts) ? draftPosts.length ? draftPosts.map(draftPost => (
+                <DraftPost draftPost={draftPost} key={draftPost.id}/>
+            )) : (
+                <span className="text-neutral-500">No posts or drafts</span>
+            ) : posts.length ? posts.map(post => (
+                <Link to={`/@${user.username}/${project.slug}/${post.slug}`} key={post.id} className="block my-4">
+                    <h3 className="text-neutral-700 font-semibold text-xl">{post.title}</h3>
+                    <div className="line-clamp-2 text-sm text-neutral-500 mt-2 mb-3"><span>{post.plaintext}</span></div>
                     <div className="flex items-center gap-x-3">
-                        <div className="px-1 py-0.75 rounded border border-amber-400 bg-amber-200 text-black/80 font-bold text-xs">
-                            <span>Draft</span>
-                        </div>
-                        <div className="text-neutral-500 text-sm"><span>{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
+                        <div className="text-neutral-500 text-xs"><span>{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
                     </div>
                 </Link>
-            ))}
+            )) : (
+                <span className="text-neutral-500">No posts</span>
+            )}
         </div>
     )
 }
@@ -69,6 +98,7 @@ export async function loader({request, params}: Route.LoaderArgs) {
     const trueUsername = username.slice(1);
 
     const pb = createServerClient(request.headers.get("Cookie"));
+    const isOwner = pb.authStore.record?.username === trueUsername;
 
     try {
         const user = await pb.collection("users").getFirstListItem(`username="${trueUsername}"`);
@@ -76,7 +106,7 @@ export async function loader({request, params}: Route.LoaderArgs) {
         const project = await pb.collection("projects").getFirstListItem(`parent="${user.id}" && slug="${projectSlug}"`);
         if (!project) throw data({message: "Project not found", status: 404});
         const posts = await pb.collection("posts").getFullList({filter: `project="${project.id}"`});
-        const draftPosts = await pb.collection("draftPosts").getFullList({filter: `project="${project.id}"`});
+        const draftPosts = isOwner ? await pb.collection("draftPosts").getFullList({filter: `project="${project.id}"`}) : null;
         // list posts
         return data({user, project, posts, draftPosts});
     } catch (e) {
