@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import {createEditor, Node, type BaseEditor, type Descendant, Text, Element as SlateElement} from "slate";
 import {Editable, ReactEditor, Slate, withReact, type RenderElementProps, type RenderLeafProps} from "slate-react";
 import {withHistory} from "slate-history";
@@ -21,7 +21,7 @@ const initialValue: Node[] & Descendant[] = [
 ];
 
 // leaving out withImages
-export const customSlateEditorFactory = () => 
+export const customSlateEditorFactory = (projectId: string) => 
     withImages(
         withTex(
             withLists(
@@ -37,16 +37,14 @@ export const customSlateEditorFactory = () =>
                     )
                 )
             )
-        )
+        ),
+        projectId
     );
 
-export default function SlateEditor() {
-    const [editor] = useState(customSlateEditorFactory());
-    const [value, setValue] = useState<Node[]>(initialValue);
+export default function SlateEditor({projectId, initialValue, setValue}: {projectId: string, initialValue: Descendant[], setValue: Dispatch<SetStateAction<Descendant[]>>}) {
+    const [editor] = useState(customSlateEditorFactory(projectId));
     const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
     const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
-
-    console.log(value);
 
     return (
         <div className="prose" style={{fontSize: 20}}>

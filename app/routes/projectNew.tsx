@@ -40,9 +40,16 @@ export default function projectNew() {
     )
 }
 
-export async function loader({request}: Route.LoaderArgs) {
+export async function loader({request, params}: Route.LoaderArgs) {
+    const {username} = params;
+    if (username.slice(0, 1) !== "@") throw data({message: "Invalid username", status: 404});
+    const trueUsername = username.slice(1);
+
     const pb = createServerClient(request.headers.get("Cookie"));
-    if (!pb.authStore.isValid) return redirect("/login", {headers: {"Set-Cookies": pb.authStore.exportToCookie({httpOnly: false})}});
+    if (!pb.authStore.isValid || !pb.authStore.record) return redirect("/login", {headers: {"Set-Cookies": pb.authStore.exportToCookie({httpOnly: false})}});
+
+    if (pb.authStore.record.username !== trueUsername) return redirect(`/@${username}/projects`);
+
     return data({headers: {"Set-Cookie": pb.authStore.exportToCookie({httpOnly: false})}});
 }
 
@@ -70,7 +77,7 @@ export async function action({request}: Route.ActionArgs) {
             parent: pb.authStore.record.id,
         });
 
-        return redirect(`/@${pb.authStore.record.username}/${slug}`);
+        return redirect(`/@${pb.authStore.record.username}/${slug}`, {headers: {"Set-Cookies": pb.authStore.exportToCookie({httpOnly: false})}});
     } catch (e) {
         return redirect(`/projects/new?error=Error: ${e}`);
     }

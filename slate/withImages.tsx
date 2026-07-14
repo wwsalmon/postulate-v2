@@ -5,7 +5,7 @@ import {useFocused, useSelected} from "slate-react";
 import {Element, Node} from "slate";
 import { createBrowserClient, POCKETBASE_API_URL } from "~/pocketbase";
 
-const withImages = (editor: CustomEditor) => {
+const withImages = (editor: CustomEditor, projectId: string) => {
     const {insertData, isVoid} = editor;
 
     const pb = createBrowserClient();
@@ -28,7 +28,7 @@ const withImages = (editor: CustomEditor) => {
 
                 if (!pb.authStore.record) return window.alert("Cannot upload image, not authenticated");
 
-                const projectId = "6be7z348qe11enn";
+                // const projectId = "6be7z348qe11enn";
                 
                 pb.collection("files").create({
                     file: file,

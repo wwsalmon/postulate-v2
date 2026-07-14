@@ -1,9 +1,8 @@
-import { createBrowserClient, createServerClient } from "~/pocketbase";
-import Navbar from "../../components/Navbar";
-import type { Route } from "./+types/user";
-import { data } from "react-router";
-import Button from "../../components/Button";
 import { ArrowRight } from "lucide-react";
+import { data, Link } from "react-router";
+import { createBrowserClient, createServerClient } from "~/pocketbase";
+import { LinkButton } from "../../components/Button";
+import type { Route } from "./+types/user";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {user} = loaderData;
@@ -30,22 +29,22 @@ export default function User({loaderData}: Route.ComponentProps) {
                 {/* <div className="text-neutral-500 text-xl leading-none text-center"><span>@{user.username}</span></div> */}
                 <div className="text-neutral-500 text-xl leading-none text-center"><span>Repositories of open-source knowledge</span></div>
                 <div className="flex items-center mt-16">
-                    <h3 className="text-neutral-500 font-medium">Pinned</h3>
+                    <h3 className="text-neutral-500 font-medium">Projects</h3>
                     {isOwnProfile && (
-                        <Button className="ml-auto" small={true}>+ New</Button>
+                        <LinkButton className="ml-auto" small={true} to={`/@${user.username}/projects/new`}>+ New project</LinkButton>
                     )}
                 </div>
                 <div className="grid grid-cols-4 mt-4 gap-3">
                     {projects.items.map(project => (
-                        <div key={project.id} className="border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
-                            <h3 className="underline font-bold text-neutral-700">{project.name}</h3>
+                        <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
+                            <h3 className="font-bold text-neutral-700">{project.name}</h3>
                             <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
-                        </div>
+                        </Link>
                     ))}
-                    <div className="flex items-center justify-center px-4 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
-                        <span>All repos ({projects.totalItems})</span>
+                    <Link to={`/@${user.username}/projects`} className="flex items-center justify-center px-4 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
+                        <span>All projects ({projects.totalItems})</span>
                         <ArrowRight size={16}/>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </>
@@ -59,7 +58,7 @@ export async function loader({request, params}: Route.LoaderArgs) {
     if (username.slice(0, 1) !== "@") throw data({message: "Invalid username", status: 404});
     const trueUsername = username.slice(1);
 
-    const pb = createServerClient();
+    const pb = createServerClient(request.headers.get("Cookie"));
     try {
         const user = await pb.collection("users").getFirstListItem(`username="${trueUsername}"`);
         const projects = await pb.collection("projects").getList(1, 7, {filter: `parent="${user.id}"`});
