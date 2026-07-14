@@ -67,6 +67,25 @@ export default function SlateEditor({projectId, initialValue, setValue}: {projec
     )
 }
 
+export function SlateReadOnly({value, projectId}: {value: Descendant[], projectId: string}) {
+    const [editor] = useState(customSlateEditorFactory(projectId));
+    const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
+    const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
+
+    return (
+        <div className={`prose`} style={{fontSize: 20}}>
+            <Slate editor={editor} value={value}>
+                <Editable
+                    readOnly={true}
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    placeholder="Nothing written here!"
+                />
+            </Slate>
+        </div>
+    )
+}
+
 export const getPlainTextFromSlateValue = (value: Node[]) => value.map(node => getPlainTextFromSlateNode(node)).join("\n");
 
 const getPlainTextFromSlateNode = (node: Node): string => {
