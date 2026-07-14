@@ -32,4 +32,4 @@ export default function AutosavingEditor({ prevValue, onSubmitEdit, setStatus, h
     )
 }
 
-export const getStatus = (isLoading: boolean, value: Node[] | string, prevValue: Node[] | string) => isLoading ? "Saving..." : equal(value, prevValue) ? "Saved" : "Unsaved changes"
+export const getStatus = (isLoading: boolean, value: Node[], prevValue: Node[]) => isLoading ? "Saving..." : equal(value, prevValue) ? "Draft saved" : "Unsaved changes"

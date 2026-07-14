@@ -1,7 +1,6 @@
 import {type Dispatch, type SetStateAction, useCallback, useEffect, useState, type HTMLProps} from "react";
 import {useAutosave} from "react-autosave";
 import {Node} from "slate";
-import {getStatus} from "../slate/AutosavingEditor";
 
 export default function AutosavingField({prevValue, onSubmitEdit, setStatus, ...domProps}: HTMLProps<HTMLInputElement> & {
     prevValue: string,
@@ -32,3 +31,5 @@ export default function AutosavingField({prevValue, onSubmitEdit, setStatus, ...
         </>
     )
 }
+
+const getStatus = (isLoading: boolean, value: string, prevValue: string) => isLoading ? "Saving..." : value === prevValue ? "Saved" : "Unsaved changes";
