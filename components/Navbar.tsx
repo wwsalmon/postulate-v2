@@ -1,5 +1,7 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import classNames from "classnames";
 import { LayoutGrid, LogOut, User } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { createBrowserClient } from "~/pocketbase"
 
@@ -48,5 +50,15 @@ export default function Navbar() {
                 </Menu>
             )}
         </div>
+    )
+}
+
+export function CustomMenuItem({children, className, to}: {children: ReactNode, className?: string, to: string}) {
+    return (
+        <MenuItem>
+            <Link to={to} className={classNames("px-4 py-3 bg-white hover:bg-neutral-100 focus:bg-neutral-100 flex items-center gap-2", className)}>
+                {children}
+            </Link>
+        </MenuItem>
     )
 }

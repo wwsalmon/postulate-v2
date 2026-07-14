@@ -1,7 +1,11 @@
 import { data, Link } from "react-router";
-import { createServerClient } from "~/pocketbase";
+import { createBrowserClient, createServerClient } from "~/pocketbase";
 import type { Route } from "../routes/+types/post";
 import { SlateReadOnly } from "../../slate/SlateEditor";
+import { Menu, MenuButton, MenuItems } from "@headlessui/react";
+import { Edit, EllipsisVertical } from "lucide-react";
+import { CustomMenuItem } from "../../components/Navbar";
+import equal from "deep-equal";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {post, project} = loaderData;
@@ -15,13 +19,36 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export default function Post({loaderData}: Route.ComponentProps) {
     const {user, project, draftPost, post, projectPosts} = loaderData;
 
+    const pb = createBrowserClient();
+
+    const isOwner = pb.authStore.record?.id === user.id;
+    const isDraftUpdated = !!draftPost && equal(draftPost.slateBody, post.slateBody);
+
     return (
         <div className="lg:flex max-w-5xl mx-auto gap-8 pt-12">
             <div className="max-w-3xl w-full shrink-0">
                 <h1 className="text-4xl font-bold text-neutral-700">{post.title}</h1>
                 <div className="flex items-center gap-4 mt-6 mb-4 border-b border-neutral-200 pb-6">
                     <span className="text-neutral-500">{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
-                    <span className="text-neutral-500">Updated {new Date(post.updated).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
+                    <span className="text-neutral-500 mr-auto">Updated {new Date(post.updated).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
+                    {isOwner && !!draftPost && (
+                        <>
+                            {!isDraftUpdated && (
+                                <span className="text-neutral-500 text-sm">Unpublished changes in draft</span>
+                            )}
+                            <Menu>
+                                <MenuButton className="p-2 rounded transition hover:bg-neutral-100">
+                                    <EllipsisVertical size={16}></EllipsisVertical>
+                                </MenuButton>
+                                <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200">
+                                    <CustomMenuItem to={`/edit/${draftPost.id}`}>
+                                        <Edit size={16}/>
+                                        Edit
+                                    </CustomMenuItem>
+                                </MenuItems>
+                            </Menu>
+                        </>
+                    )}
                 </div>
                 <SlateReadOnly value={post.slateBody} projectId={project.id}/>
             </div>
