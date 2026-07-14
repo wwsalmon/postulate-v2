@@ -4,26 +4,35 @@ import AutosavingEditor from "../../slate/AutosavingEditor";
 import type { Route } from "./+types/postEdit";
 import AutosavingField from "../../components/AutosavingField";
 import { getPlainTextFromSlateValue } from "../../slate/SlateEditor";
+import { useState } from "react";
+import { type Descendant } from "slate";
 
 export default function PostEdit({loaderData}: Route.ComponentProps) {
     const {draftPost, project} = loaderData;
 
     const pb = createBrowserClient();
 
+    const [savedSlateBody, setSavedSlateBody] = useState<Descendant[]>(draftPost.slateBody);
+    const [savedTitle, setSavedTitle] = useState<string>(draftPost.title);
+
     return (
         <div className="max-w-3xl mx-auto px-4 my-8">
             <AutosavingField
-                prevValue={draftPost.title}
-                onSubmitEdit={(value) => {
-                    return pb.collection("draftPosts").update(draftPost.id, {title: value});
+                prevValue={savedTitle}
+                onSubmitEdit={async (value) => {
+                    const savedDraftPost = await pb.collection("draftPosts").update(draftPost.id, {title: value});
+                    setSavedTitle(savedDraftPost.title);
+                    return savedDraftPost;
                 }}
                 className="text-3xl font-bold mb-4"
             ></AutosavingField>
             <AutosavingEditor
                 projectId={project.id}
-                prevValue={draftPost.slateBody}
-                onSubmitEdit={(value) => {
-                    return pb.collection("draftPosts").update(draftPost.id, {slateBody: value, plaintext: getPlainTextFromSlateValue(value)});
+                prevValue={savedSlateBody}
+                onSubmitEdit={async (value) => {
+                    const savedDraftPost = await pb.collection("draftPosts").update(draftPost.id, {slateBody: value, plaintext: getPlainTextFromSlateValue(value)});
+                    setSavedSlateBody(savedDraftPost.slateBody);
+                    return savedDraftPost;
                 }}
             />
         </div>

@@ -2,6 +2,7 @@ import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } 
 import { useAutosave } from "react-autosave";
 import SlateEditor from "./SlateEditor";
 import { Node, type Descendant } from "slate";
+import equal from "deep-equal";
 
 export default function AutosavingEditor({ prevValue, onSubmitEdit, setStatus, hideStatus, projectId }: { prevValue: Descendant[], onSubmitEdit: (value: Descendant[]) => Promise<any>, setStatus?: Dispatch<SetStateAction<string>>, hideStatus?: boolean, projectId: string }) {
     const [value, setValue] = useState<Descendant[]>(prevValue);
@@ -31,4 +32,4 @@ export default function AutosavingEditor({ prevValue, onSubmitEdit, setStatus, h
     )
 }
 
-export const getStatus = (isLoading: boolean, value: Node[] | string, prevValue: Node[] | string) => isLoading ? "Saving..." : JSON.stringify(value) === JSON.stringify(prevValue) ? "Saved" : "Unsaved changes"
+export const getStatus = (isLoading: boolean, value: Node[] | string, prevValue: Node[] | string) => isLoading ? "Saving..." : equal(value, prevValue) ? "Saved" : "Unsaved changes"
