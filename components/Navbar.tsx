@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { LayoutGrid, LogOut, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
-import { createBrowserClient } from "~/pocketbase"
+import { createBrowserClient, POCKETBASE_API_URL } from "~/pocketbase"
 import { LinkButton } from "./Button";
 
 export default function Navbar() {
@@ -21,9 +21,11 @@ export default function Navbar() {
     return (
         <div className="w-full sticky top-0 left-0 h-13 flex items-center px-4 z-10 bg-white">
             <img src="/logo.svg" alt="Postulate logo" className="h-5" />
-            {pb.authStore.isValid ? (
+            {(pb.authStore.isValid && pb.authStore.record) ? (
                 <Menu>
-                    <MenuButton className="ml-auto h-5 w-5 rounded-full bg-amber-500 flex items-center justify-center"><span>{pb.authStore.record?.username.slice(0,1)}</span></MenuButton>
+                    <MenuButton className="ml-auto">
+                        <img src={pb.authStore.record.avatar ? `${POCKETBASE_API_URL}/api/files/users/${pb.authStore.record.id}/${pb.authStore.record.avatar}` : "/logo.svg"} alt={`Profile picture of ${pb.authStore.record.name}`} className="h-5 w-5 rounded-full object-cover"/>
+                    </MenuButton>
                     <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200 relative z-30">
                         {pb.authStore.record && (
                             <>
