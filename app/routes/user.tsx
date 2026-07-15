@@ -14,8 +14,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function User({loaderData}: Route.ComponentProps) {
-    const {user, projects} = loaderData;
-    const pb = createBrowserClient();
+    const {user, projects, cookie} = loaderData;
+    const pb = createBrowserClient(cookie);
     const thisUser = pb.authStore?.record;
     const isOwnProfile = thisUser && thisUser.id === user.id;
 
@@ -63,7 +63,7 @@ export async function loader({request, params}: Route.LoaderArgs) {
         const user = await pb.collection("users").getFirstListItem(`username="${trueUsername}"`);
         const projects = await pb.collection("projects").getList(1, 7, {filter: `parent="${user.id}"`});
         if (!user) throw data({message: "User not found", status: 404});
-        return data({user: user, projects: projects});
+        return data({user: user, projects: projects, cookie: pb.authStore.exportToCookie()});
     } catch (e) {
         throw data({message: e, status: 404});
     }

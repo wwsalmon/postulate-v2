@@ -45,8 +45,7 @@ export function createBrowserClient(cookie?: string) {
 
     const _singletonClient = singletonClient ?? createNewClient();
 
-    if (cookie) {
-        isLoggingOut = false;
+    if (cookie && !isLoggingOut) {
         _singletonClient.authStore.loadFromCookie(cookie);
     }
 
@@ -62,7 +61,7 @@ export function createBrowserClient(cookie?: string) {
                 httpOnly: false,
             });
         } else {
-            if (isLoggingOut) singletonClient?.authStore.clear();
+            isLoggingOut = false;
         }
     });
 

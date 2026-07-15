@@ -33,7 +33,7 @@ export default function Login({loaderData}: Route.ComponentProps) {
 
 export async function loader({request}: Route.LoaderArgs) {
     const pb = createServerClient(request.headers.get("Cookie"));
-    if (pb.authStore.isValid) return redirect("/projects");
+    if (pb.authStore.isValid && pb.authStore.record) return redirect(`/@${pb.authStore.record.username}`, {headers: {"Set-Cookie": pb.authStore.exportToCookie({httpOnly: false})}});
 
     const cookie = request.headers.get("Cookie");
     let error = "";
@@ -50,7 +50,7 @@ export async function action({request}: Route.ActionArgs) {
     const password = form.get("password");
 
     if (typeof username !== "string" || typeof password !== "string") {
-        return redirect("/login", {headers: {"Set-Cookie": `POSTULATE_AUTH_ERROR=Invalid username or password`}});
+        return redirect(`/@${username}`, {headers: {"Set-Cookie": `POSTULATE_AUTH_ERROR=Invalid username or password`}});
     }
 
     const pb = createServerClient(cookie);
@@ -61,8 +61,8 @@ export async function action({request}: Route.ActionArgs) {
         return redirect("/login", {headers: {"Set-Cookie": `POSTULATE_AUTH_ERROR=${e}`}});
     }
 
-    if (pb.authStore.isValid) {
-        return redirect("/projects", {headers: [["Set-Cookie", "POSTULATE_AUTH_ERROR="], ["Set-Cookie", pb.authStore.exportToCookie({httpOnly: false})]]});
+    if (pb.authStore.isValid && pb.authStore.record) {
+        return redirect(`/@${pb.authStore.record.username}`, {headers: [["Set-Cookie", "POSTULATE_AUTH_ERROR="], ["Set-Cookie", pb.authStore.exportToCookie({httpOnly: false})]]});
     } else {
         return redirect("/login", {headers: {"Set-Cookie": `POSTULATE_AUTH_ERROR=Failed to log in`}});
     }
