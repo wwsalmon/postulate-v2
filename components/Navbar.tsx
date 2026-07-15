@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { createBrowserClient, POCKETBASE_API_URL } from "~/pocketbase"
 import { LinkButton } from "./Button";
+import { ProfilePic } from "~/routes/user";
 
 export default function Navbar() {
     const pb = createBrowserClient();
@@ -24,7 +25,7 @@ export default function Navbar() {
             {(pb.authStore.isValid && pb.authStore.record) ? (
                 <Menu>
                     <MenuButton className="ml-auto">
-                        <img src={pb.authStore.record.avatar ? `${POCKETBASE_API_URL}/api/files/users/${pb.authStore.record.id}/${pb.authStore.record.avatar}` : "/logo.svg"} alt={`Profile picture of ${pb.authStore.record.name}`} className="h-5 w-5 rounded-full object-cover"/>
+                        <ProfilePic user={pb.authStore.record} className="w-5 h-5 rounded-full object-cover"/>
                     </MenuButton>
                     <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200 relative z-30">
                         {pb.authStore.record && (

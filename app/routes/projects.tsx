@@ -2,6 +2,7 @@ import { data, Link } from "react-router";
 import { createBrowserClient, createServerClient } from "~/pocketbase";
 import type { Route } from "../routes/+types/projects";
 import { LinkButton } from "../../components/Button";
+import { ProfilePic } from "./user";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {user} = loaderData;
@@ -23,7 +24,7 @@ export default function Projects({loaderData}: Route.ComponentProps) {
         <>
             <div className="max-w-4xl mx-auto px-4">
                 <Link to={`/@${user.username}`} className="flex items-center gap-4 my-8">
-                    <div className="w-8 h-8 rounded-full bg-neutral-300"></div>
+                    <ProfilePic user={user} className="w-8 h-8 rounded-full object-cover"/>
                     <h1 className="text-neutral-700 text-xl font-bold leading-none text-center">{user.name}</h1>
                 </Link>
                 <div className="flex items-center">

@@ -3,6 +3,7 @@ import { data, Link } from "react-router";
 import { createBrowserClient, createServerClient, POCKETBASE_API_URL } from "~/pocketbase";
 import { LinkButton } from "../../components/Button";
 import type { Route } from "./+types/user";
+import classNames from "classnames";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {user} = loaderData;
@@ -32,7 +33,7 @@ export default function User({loaderData}: Route.ComponentProps) {
                     </div>
                 )}
                 <div className="flex flex-col items-center my-8">
-                    <img src={user.avatar ? `${POCKETBASE_API_URL}/api/files/users/${user.id}/${user.avatar}` : "/logo.svg"} alt={`Profile picture of ${user.name}`} className="w-16 h-16 rounded-full object-cover"/>
+                    <ProfilePic user={user} className="w-16 h-16 rounded-full object-cover"/>
                 </div>    
                 <h1 className="text-neutral-700 text-2xl font-bold mt-8 mb-2 leading-none text-center">{user.name}</h1>
                 {/* <div className="text-neutral-500 text-xl leading-none text-center"><span>@{user.username}</span></div> */}
@@ -81,4 +82,10 @@ export async function loader({request, params}: Route.LoaderArgs) {
         throw data({message: e, status: 404});
     }
 
+}
+
+export function ProfilePic({user, className}: {user: any, className?: string}) {
+    return (
+        <img src={user.avatar ? `${POCKETBASE_API_URL}/api/files/users/${user.id}/${user.avatar}` : "/logo.svg"} alt={`Profile picture of ${user.name}`} className={classNames(className)}/>
+    )
 }
