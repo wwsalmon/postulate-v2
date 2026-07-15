@@ -10,7 +10,7 @@ export default function EllipsisMenu({children, className}: {children: ReactNode
             <MenuButton className={classNames("p-2 rounded transition hover:bg-neutral-100", className)}>
                 <EllipsisVertical size={16}></EllipsisVertical>
             </MenuButton>
-            <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200">
+            <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200 relative z-30">
                 {children}
             </MenuItems>
         </Menu>

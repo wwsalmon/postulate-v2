@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Edit } from "lucide-react";
 import { data, Link } from "react-router";
 import { createBrowserClient, createServerClient } from "~/pocketbase";
 import { LinkButton } from "../../components/Button";
@@ -17,11 +17,20 @@ export default function User({loaderData}: Route.ComponentProps) {
     const {user, projects, cookie} = loaderData;
     const pb = createBrowserClient(cookie);
     const thisUser = pb.authStore?.record;
-    const isOwnProfile = thisUser && thisUser.id === user.id;
+    const isOwner = thisUser && thisUser.id === user.id;
 
     return (
         <>
             <div className="max-w-4xl mx-auto px-4">
+                {isOwner && (
+                    <div className="flex items-center mt-3 pb-3 border-b border-neutral-200 mb-12">
+                        <span className="text-sm mr-auto text-neutral-500">Welcome to your Postulate profile</span>
+                        <Link to={`/@${user.username}/edit`} className="-mr-2 px-2 py-1 rounded hover:bg-neutral-100 font-medium text-sm flex items-center gap-x-2 text-neutral-500">
+                            <Edit size={14}/>
+                            Edit
+                        </Link>
+                    </div>
+                )}
                 <div className="flex flex-col items-center my-8">
                     <div className="w-16 h-16 rounded-full bg-neutral-300"></div>
                 </div>    
@@ -30,7 +39,7 @@ export default function User({loaderData}: Route.ComponentProps) {
                 <div className="text-neutral-500 text-xl leading-none text-center"><span>Repositories of open-source knowledge</span></div>
                 <div className="flex items-center mt-16">
                     <h3 className="text-neutral-700 font-medium">Projects</h3>
-                    {isOwnProfile && (
+                    {isOwner && (
                         <LinkButton className="ml-auto" small={true} to={`/@${user.username}/projects/new`}>+ New project</LinkButton>
                     )}
                 </div>

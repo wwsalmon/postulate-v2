@@ -24,7 +24,7 @@ export default function Navbar() {
             {pb.authStore.isValid ? (
                 <Menu>
                     <MenuButton className="ml-auto h-5 w-5 rounded-full bg-amber-500 flex items-center justify-center"><span>{pb.authStore.record?.username.slice(0,1)}</span></MenuButton>
-                    <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200">
+                    <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200 relative z-30">
                         {pb.authStore.record && (
                             <>
                                 <MenuItem>

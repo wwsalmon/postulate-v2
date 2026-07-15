@@ -1,6 +1,6 @@
 import Navbar from "../../components/Navbar";
 import type { Route } from "./+types/login";
-import { data, redirect } from "react-router";
+import { data, redirect, useSearchParams } from "react-router";
 import { createServerClient, parseCookie } from "~/pocketbase";
 import Button from "../../components/Button";
 
@@ -14,10 +14,19 @@ export function meta({ }: Route.MetaArgs) {
 export default function Login({loaderData}: Route.ComponentProps) {
     const {error} = loaderData;
 
+    const [searchParams] = useSearchParams();
+
+    const message = searchParams.get("message");
+
     return (
         <>
             <div className="max-w-sm w-full mx-auto px-4 my-8">
                 <h1 className="text-2xl text-neutral-700 font-bold text-center mb-6">Welcome to Postulate</h1>
+                {message && (
+                    <div className="my-4 px-4 py-3 bg-green-200 border border-green-400 rounded text-black/80">
+                        <span>{message}</span>
+                    </div>
+                )}
                 <form method="POST">
                     <input name="username" type="text" className="block border w-full px-4 py-3 border-neutral-200 outline-none focus:border-neutral-700 rounded mb-3" placeholder="Username"/>
                     <input name="password" type="password" className="block border w-full px-4 py-3 border-neutral-200 outline-none focus:border-neutral-700 rounded mb-3" placeholder="Password"/>
