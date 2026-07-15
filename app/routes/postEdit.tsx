@@ -1,4 +1,4 @@
-import { data, Link } from "react-router";
+import { data, Link, useNavigate } from "react-router";
 import { createBrowserClient, createServerClient } from "~/pocketbase";
 import AutosavingEditor from "../../slate/AutosavingEditor";
 import type { Route } from "./+types/postEdit";
@@ -7,10 +7,12 @@ import { getPlainTextFromSlateValue } from "../../slate/SlateEditor";
 import { useState } from "react";
 import { type Descendant } from "slate";
 import Button, { LinkButton } from "../../components/Button";
-import { ArrowLeft, Delete, Trash } from "lucide-react";
+import { ArrowLeft, Delete, Trash, Trash2 } from "lucide-react";
 import {format, isEqual} from "date-fns";
 import short from "short-uuid";
 import equal from "deep-equal";
+import { Menu, MenuButton, MenuItems } from "@headlessui/react";
+import EllipsisMenu, { CustomMenuButton, CustomMenuLink } from "../../components/EllipsisMenu";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {draftPost} = loaderData;
@@ -25,6 +27,7 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
     const {draftPost, project, user, post} = loaderData;
 
     const pb = createBrowserClient();
+    const navigate = useNavigate();
 
     const [savedSlateBody, setSavedSlateBody] = useState<Descendant[]>(draftPost.slateBody);
     const [savedTitle, setSavedTitle] = useState<string>(draftPost.title);
@@ -71,6 +74,27 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
         }
     }
 
+    async function onDelete() {
+        const isConfirmDelete = window.confirm("Are you sure you want to delete this post? You cannot undo this action.");
+        
+        if (!isConfirmDelete) return;
+
+        setIsLoading(true);
+
+        try {
+            await pb.collection("draftPosts").delete(draftPost.id);
+            if (draftPost.post) {
+                await pb.collection("posts").delete(draftPost.post);
+            }
+            setIsLoading(false);
+            navigate(`/@${user.username}/${project.slug}`);
+        } catch (e) {
+            window.alert(`Error deleting post: ${e}`);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const isPublished = !!publishedPost;
     const isPublishedEqual = isPublished && equal(publishedPost.slateBody, savedSlateBody) && publishedPost.title === savedTitle;
 
@@ -93,10 +117,12 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
                         "Unpublished"
                     </span>
                 )}
-                <button className="text-red-500 border-b pb-1 text-sm opacity-50 hover:opacity-100 flex items-center gap-1">
-                    <Trash size={14}></Trash>
-                    Delete post
-                </button>
+                <EllipsisMenu>
+                    <CustomMenuButton onClick={onDelete} isLoading={isLoading} className="text-red-500">
+                        <Trash size={16}/>
+                        Delete post
+                    </CustomMenuButton>
+                </EllipsisMenu>
                 <Button className="" small={true} onClick={onPublish} isLoading={isLoading} isDisabled={isPublishedEqual || draftStatus !== "Draft saved"}>{publishedPost ? "Save" : "Publish"}</Button>
             </div>
             <div className="max-w-3xl mx-auto px-4 my-8">
