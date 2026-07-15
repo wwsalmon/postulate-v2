@@ -35,14 +35,14 @@ export default function User({loaderData}: Route.ComponentProps) {
                     )}
                 </div>
                 {projects.items.length ? (
-                    <div className="grid grid-cols-4 mt-4 gap-3">
+                    <div className="grid sm:grid-cols-3 md:grid-cols-4 mt-4 gap-3">
                         {projects.items.map(project => (
                             <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
                                 <h3 className="font-bold text-neutral-700">{project.name}</h3>
                                 <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
                             </Link>
                         ))}
-                        <Link to={`/@${user.username}/projects`} className="flex items-center justify-center px-4 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
+                        <Link to={`/@${user.username}/projects`} className="flex items-center justify-center px-4 min-h-16 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
                             <span>All projects ({projects.totalItems})</span>
                             <ArrowRight size={16}/>
                         </Link>

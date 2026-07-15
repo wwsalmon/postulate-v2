@@ -7,7 +7,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     const {user} = loaderData;
 
     return [
-        { title: `${user.name}'s projects | Postulate` },
+        { title: `${user.name}'s psrojects | Postulate` },
         { name: "description", content: "Repositories of open-source knowledge" },
     ];
 }
@@ -33,7 +33,7 @@ export default function Projects({loaderData}: Route.ComponentProps) {
                     )}
                 </div>
                 {projects.length ? (
-                    <div className="grid grid-cols-4 mt-4 gap-3">
+                    <div className="grid sm:grid-cols-3 md:grid-cols-4 mt-4 gap-3">
                         {projects.map(project => (
                             <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="block border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
                                 <h3 className="font-bold text-neutral-700">{project.name}</h3>

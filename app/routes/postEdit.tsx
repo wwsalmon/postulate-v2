@@ -7,7 +7,7 @@ import { getPlainTextFromSlateValue } from "../../slate/SlateEditor";
 import { useState } from "react";
 import { type Descendant } from "slate";
 import Button, { LinkButton } from "../../components/Button";
-import { ArrowLeft, Delete, Trash, Trash2 } from "lucide-react";
+import { ArrowLeft, Delete, SquareArrowOutUpRight, Trash, Trash2 } from "lucide-react";
 import {format, isEqual} from "date-fns";
 import short from "short-uuid";
 import equal from "deep-equal";
@@ -105,19 +105,25 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
                     <ArrowLeft size={16}/>
                     <span>{project.name}</span>
                 </Link>
-                <span className="text-neutral-500 text-sm">
+                <span className="text-neutral-500 text-sm hidden sm:inline">
                     {draftStatus}
                 </span>
                 {isPublished ? (
-                    <Link to={`/@${user.username}/${project.slug}/${publishedPost.slug}`} className="text-neutral-500 text-sm underline">
+                    <Link to={`/@${user.username}/${project.slug}/${publishedPost.slug}`} className="text-neutral-500 text-sm underline hidden sm:inline">
                         {isPublishedEqual ? "Published" : "Unpublished changes"}
                     </Link>    
                 ) : (
-                    <span className="text-neutral-500 text-sm">
+                    <span className="text-neutral-500 text-sm hidden sm:inline">
                         "Unpublished"
                     </span>
                 )}
                 <EllipsisMenu>
+                    {publishedPost && (
+                        <CustomMenuLink to={`/@${user.username}/${project.slug}/${publishedPost.slug}`}>
+                            <SquareArrowOutUpRight size={16}/>
+                            View published post
+                        </CustomMenuLink>
+                    )}
                     <CustomMenuButton onClick={onDelete} isLoading={isLoading} className="text-red-500">
                         <Trash size={16}/>
                         Delete post
@@ -125,7 +131,7 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
                 </EllipsisMenu>
                 <Button className="" small={true} onClick={onPublish} isLoading={isLoading} isDisabled={isPublishedEqual || draftStatus !== "Draft saved"}>{publishedPost ? "Save" : "Publish"}</Button>
             </div>
-            <div className="max-w-3xl mx-auto px-4 my-8">
+            <div className="max-w-3xl mx-auto w-full px-4 my-8">
                 <AutosavingField
                     prevValue={savedTitle}
                     onSubmitEdit={async (value) => {
@@ -133,7 +139,7 @@ export default function PostEdit({loaderData}: Route.ComponentProps) {
                         setSavedTitle(savedDraftPost.title);
                         return savedDraftPost;
                     }}
-                    className="text-3xl font-bold mb-4"
+                    className="text-3xl font-bold mb-4 w-full"
                 ></AutosavingField>
                 <AutosavingEditor
                     projectId={project.id}

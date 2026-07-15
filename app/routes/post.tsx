@@ -28,8 +28,8 @@ export default function Post({loaderData}: Route.ComponentProps) {
     return (
         <>
             <ProjectNavbar user={user} project={project}/>
-            <div className="lg:flex max-w-5xl mx-auto gap-8 pt-12">
-                <div className="max-w-3xl w-full shrink-0">
+            <div className="md:flex max-w-5xl mx-auto gap-8 pt-12 px-4">
+                <div className="max-w-3xl w-full">
                     <h1 className="text-4xl font-bold text-neutral-700">{post.title}</h1>
                     <div className="flex items-center gap-4 mt-6 mb-4 border-b border-neutral-200 pb-6">
                         <span className="text-neutral-500">{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
@@ -55,7 +55,7 @@ export default function Post({loaderData}: Route.ComponentProps) {
                     </div>
                     <SlateReadOnly value={post.slateBody} projectId={project.id}/>
                 </div>
-                <div className="max-w-70 grow">
+                <div className="md:max-w-60 border-t mt-8 pt-8 border-neutral-200 w-full md:mt-0 md:pt-0 md:border-0 pb-8">
                     <h3 className="font-medium text-neutral-700">Project</h3>
                     <Link to={`/@${user.username}/${project.slug}`} className="text-xl font-bold text-neutral-700 my-2 block">{project.name}</Link>
                     <p className="text-neutral-500 mb-12">{project.description}</p>
