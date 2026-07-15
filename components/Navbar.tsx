@@ -4,6 +4,7 @@ import { LayoutGrid, LogOut, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { createBrowserClient } from "~/pocketbase"
+import { LinkButton } from "./Button";
 
 export default function Navbar() {
     const pb = createBrowserClient();
@@ -20,7 +21,7 @@ export default function Navbar() {
     return (
         <div className="w-full sticky top-0 left-0 h-13 flex items-center px-4">
             <img src="/logo.svg" alt="Postulate logo" className="h-5" />
-            {pb.authStore.isValid && (
+            {pb.authStore.isValid ? (
                 <Menu>
                     <MenuButton className="ml-auto h-5 w-5 rounded-full bg-amber-500 flex items-center justify-center"><span>{pb.authStore.record?.username.slice(0,1)}</span></MenuButton>
                     <MenuItems anchor="bottom end" className="mt-4 rounded border border-neutral-200">
@@ -48,6 +49,8 @@ export default function Navbar() {
                         </MenuItem>
                     </MenuItems>
                 </Menu>
+            ) : (
+                <LinkButton to="/login" small={true} className="ml-auto">Log in</LinkButton>
             )}
         </div>
     )
