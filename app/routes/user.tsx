@@ -29,23 +29,27 @@ export default function User({loaderData}: Route.ComponentProps) {
                 {/* <div className="text-neutral-500 text-xl leading-none text-center"><span>@{user.username}</span></div> */}
                 <div className="text-neutral-500 text-xl leading-none text-center"><span>Repositories of open-source knowledge</span></div>
                 <div className="flex items-center mt-16">
-                    <h3 className="text-neutral-500 font-medium">Projects</h3>
+                    <h3 className="text-neutral-700 font-medium">Projects</h3>
                     {isOwnProfile && (
                         <LinkButton className="ml-auto" small={true} to={`/@${user.username}/projects/new`}>+ New project</LinkButton>
                     )}
                 </div>
-                <div className="grid grid-cols-4 mt-4 gap-3">
-                    {projects.items.map(project => (
-                        <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
-                            <h3 className="font-bold text-neutral-700">{project.name}</h3>
-                            <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
+                {projects.items.length ? (
+                    <div className="grid grid-cols-4 mt-4 gap-3">
+                        {projects.items.map(project => (
+                            <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
+                                <h3 className="font-bold text-neutral-700">{project.name}</h3>
+                                <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
+                            </Link>
+                        ))}
+                        <Link to={`/@${user.username}/projects`} className="flex items-center justify-center px-4 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
+                            <span>All projects ({projects.totalItems})</span>
+                            <ArrowRight size={16}/>
                         </Link>
-                    ))}
-                    <Link to={`/@${user.username}/projects`} className="flex items-center justify-center px-4 rounded hover:bg-neutral-50 bg-white transition font-medium text-neutral-500 gap-2">
-                        <span>All projects ({projects.totalItems})</span>
-                        <ArrowRight size={16}/>
-                    </Link>
-                </div>
+                    </div>
+                ) : (
+                    <div className="my-4"><span className="text-neutral-500">No projects yet</span></div>
+                )}
             </div>
         </>
     )

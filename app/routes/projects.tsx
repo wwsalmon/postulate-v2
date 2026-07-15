@@ -3,9 +3,11 @@ import { createBrowserClient, createServerClient } from "~/pocketbase";
 import type { Route } from "../routes/+types/projects";
 import { LinkButton } from "../../components/Button";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({ loaderData }: Route.MetaArgs) {
+    const {user} = loaderData;
+
     return [
-        { title: "Projects | Postulate" },
+        { title: `${user.name}'s projects | Postulate` },
         { name: "description", content: "Repositories of open-source knowledge" },
     ];
 }
@@ -22,22 +24,26 @@ export default function Projects({loaderData}: Route.ComponentProps) {
             <div className="max-w-4xl mx-auto px-4">
                 <Link to={`/@${user.username}`} className="flex items-center gap-4 my-8">
                     <div className="w-8 h-8 rounded-full bg-neutral-300"></div>
-                    <h1 className="text-neutral-700 text-xl font-bold leading-none text-center underline">{user.name}</h1>
+                    <h1 className="text-neutral-700 text-xl font-bold leading-none text-center">{user.name}</h1>
                 </Link>
                 <div className="flex items-center">
-                    <h3 className="text-neutral-500 font-medium">All projects ({projects.length})</h3>
+                    <h3 className="text-neutral-700 font-medium">All projects ({projects.length})</h3>
                     {isOwner && (
                         <LinkButton className="ml-auto" small={true} to={`/@${user.username}/projects/new`}>+ New project</LinkButton>
                     )}
                 </div>
-                <div className="grid grid-cols-4 mt-4 gap-3">
-                    {projects.map(project => (
-                        <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="block border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
-                            <h3 className="font-bold text-neutral-700">{project.name}</h3>
-                            <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
-                        </Link>
-                    ))}
-                </div>
+                {projects.length ? (
+                    <div className="grid grid-cols-4 mt-4 gap-3">
+                        {projects.map(project => (
+                            <Link to={`/@${user.username}/${project.slug}`} key={project.id} className="block border rounded border-neutral-300 p-4 hover:bg-neutral-50 bg-white transition">
+                                <h3 className="font-bold text-neutral-700">{project.name}</h3>
+                                <div className="text-sm text-neutral-500"><span>{project.description}</span></div>
+                            </Link>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="my-8"><span className="text-neutral-500">No projects yet</span></div>
+                )}
             </div>
         </>
     )
