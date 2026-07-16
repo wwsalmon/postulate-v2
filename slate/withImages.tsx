@@ -32,7 +32,6 @@ const withImages = (editor: CustomEditor, projectId: string) => {
                 
                 pb.collection("files").create({
                     file: file,
-                    user: pb.authStore.record.id,
                     project: projectId, // test
                 }).then(record => {
                     const url = `${POCKETBASE_API_URL}/api/files/files/${record.id}/${record.file}`;
