@@ -79,6 +79,6 @@ export async function action({request}: Route.ActionArgs) {
 
         return redirect(`/@${pb.authStore.record.username}/${slug}`, {headers: {"Set-Cookies": pb.authStore.exportToCookie({httpOnly: false})}});
     } catch (e) {
-        return redirect(`/projects/new?error=Error: ${e}`);
+        return redirect(`/@${pb.authStore.record.username}/projects/new?error=Error: ${e}`);
     }
 }
