@@ -5,6 +5,7 @@ import { createBrowserClient, createServerClient } from "~/pocketbase";
 import Button from "../../components/Button";
 import type { Route } from "../routes/+types/project";
 import ProjectNavbar from "../../components/ProjectNavbar";
+import { findImages } from "../../slate/withImages";
 
 export function meta({ loaderData }: Route.MetaArgs) {
     const {user, project} = loaderData;
@@ -73,6 +74,27 @@ export default function Project({loaderData}: Route.ComponentProps) {
         )
     }
 
+    function PostItem({post}: {post: any}) {
+        const images = findImages(post.slateBody);
+        let firstImage = "";
+        if (images.length) firstImage = images[0];
+
+        return (
+            <Link to={`/@${user.username}/${project.slug}/${post.slug}`} className="flex my-12 items-start gap-x-6">
+                <div className="min-w-0">
+                    <h3 className="text-neutral-700 font-medium text-xl">{post.title}</h3>
+                    <div className="line-clamp-2 text-sm text-neutral-400 mt-2 mb-3"><span>{post.plaintext}</span></div>
+                    <div className="flex items-center gap-x-3">
+                        <div className="text-neutral-400 text-xs"><span>{new Date(post.createdAt).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
+                    </div>
+                </div>
+                {firstImage && (
+                    <img src={firstImage} alt={`Featured image of ${post.title}`} className="w-30 aspect-4/3 shrink-0"/>
+                )}
+            </Link>
+        )
+    }
+
     return (
         <>
             <ProjectNavbar user={user} project={project}/>
@@ -90,13 +112,7 @@ export default function Project({loaderData}: Route.ComponentProps) {
                 )) : (
                     <span className="text-neutral-500">No posts or drafts</span>
                 ) : posts.length ? posts.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).map(post => (
-                    <Link to={`/@${user.username}/${project.slug}/${post.slug}`} key={post.id} className="block my-12">
-                        <h3 className="text-neutral-700 font-semibold text-xl">{post.title}</h3>
-                        <div className="line-clamp-2 text-sm text-neutral-500 mt-2 mb-3"><span>{post.plaintext}</span></div>
-                        <div className="flex items-center gap-x-3">
-                            <div className="text-neutral-500 text-xs"><span>{new Date(post.createdAt).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
-                        </div>
-                    </Link>
+                    <PostItem key={post.id} post={post}/>
                 )) : (
                     <span className="text-neutral-500">No posts</span>
                 )}
