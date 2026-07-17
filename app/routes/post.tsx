@@ -32,8 +32,8 @@ export default function Post({loaderData}: Route.ComponentProps) {
                 <div className="max-w-3xl w-full">
                     <h1 className="text-4xl font-bold text-neutral-700">{post.title}</h1>
                     <div className="flex items-center gap-4 mt-6 mb-4 border-b border-neutral-200 pb-6">
-                        <span className="text-neutral-500">{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
-                        <span className="text-neutral-500 mr-auto">Updated {new Date(post.updated).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
+                        <span className="text-neutral-500">{new Date(post.createdAt).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
+                        <span className="text-neutral-500 mr-auto">Updated {new Date(post.updatedAt).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span>
                         {isOwner && !!draftPost && (
                             <>
                                 {!isDraftUpdated && (
@@ -62,7 +62,7 @@ export default function Post({loaderData}: Route.ComponentProps) {
                     {projectPosts.items.length ? projectPosts.items.map(projectPost => (
                         <Link to={`/@${user.username}/${project.slug}/${projectPost.slug}`} key={projectPost.id} className="block my-4 opacity-50 hover:opacity-100">
                             <h4 className="font-semibold leading-none">{projectPost.title}</h4>
-                            <div><span className="text-sm text-neutral-500">{new Date(projectPost.created).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</span></div>
+                            <div><span className="text-sm text-neutral-500">{new Date(projectPost.createdAt).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</span></div>
                         </Link>
                     )) : (
                         <div><span className="text-neutral-500">No posts</span></div>

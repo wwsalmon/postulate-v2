@@ -60,7 +60,7 @@ export default function Project({loaderData}: Route.ComponentProps) {
                             <span>Draft</span>
                         </div>
                     )}
-                    <div className="text-neutral-500 text-sm"><span>{new Date(draftPost.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
+                    <div className="text-neutral-500 text-sm"><span>{new Date(draftPost.createdAt).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
                     {post && !isDraftUpdated ? (
                         <div className="px-1 py-0.75 rounded border border-green-400 bg-green-200 text-black/80 font-bold text-xs">
                             <span>Unpublished changes</span>
@@ -94,7 +94,7 @@ export default function Project({loaderData}: Route.ComponentProps) {
                         <h3 className="text-neutral-700 font-semibold text-xl">{post.title}</h3>
                         <div className="line-clamp-2 text-sm text-neutral-500 mt-2 mb-3"><span>{post.plaintext}</span></div>
                         <div className="flex items-center gap-x-3">
-                            <div className="text-neutral-500 text-xs"><span>{new Date(post.created).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
+                            <div className="text-neutral-500 text-xs"><span>{new Date(post.createdAt).toLocaleDateString("en-US", {year: "numeric", month: "short", day: "numeric"})}</span></div>
                         </div>
                     </Link>
                 )) : (
