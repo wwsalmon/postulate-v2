@@ -52,8 +52,8 @@ export default function Project({loaderData}: Route.ComponentProps) {
         const isDraftUpdated = !!post && equal(draftPost.slateBody, post.slateBody);
 
         return (
-            <Link to={post ? `/@${user.username}/${project.slug}/${post.slug}` : `/edit/${draftPost.id}`} key={draftPost.id} className="block my-4">
-                <h3 className="text-neutral-700 font-semibold mb-1">{draftPost.title}</h3>
+            <Link to={post ? `/@${user.username}/${project.slug}/${post.slug}` : `/edit/${draftPost.id}`} key={draftPost.id} className="block my-8">
+                <h3 className="text-neutral-700 font-semibold">{draftPost.title}</h3>
                 <div className="flex items-center gap-x-3">
                     {!post && (
                         <div className="px-1 py-0.75 rounded border border-amber-400 bg-amber-200 text-black/80 font-bold text-xs">
@@ -78,19 +78,19 @@ export default function Project({loaderData}: Route.ComponentProps) {
             <ProjectNavbar user={user} project={project}/>
             <div className="max-w-xl mx-auto px-4 w-full mt-12">
                 <h1 className="font-extrabold text-3xl text-neutral-700 text-center mb-2">{project.name}</h1>
-                <div className="text-xl text-neutral-500 text-center mb-16"><span></span></div>
+                <div className="text-xl text-neutral-500 text-center mb-16"><span>{project.description}</span></div>
                 <div className="flex items-center mb-8">
                     <h3 className="font-medium text-neutral-500 mr-auto">Posts ({posts.length})</h3>
                     {isOwner && (
                         <Button small={true} isLoading={isLoading} onClick={onNewPost}>+ New post</Button>
                     )}
                 </div>
-                {(isOwner && draftPosts) ? draftPosts.length ? draftPosts.map(draftPost => (
+                {(isOwner && draftPosts) ? draftPosts.length ? draftPosts.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).map(draftPost => (
                     <DraftPost draftPost={draftPost} key={draftPost.id}/>
                 )) : (
                     <span className="text-neutral-500">No posts or drafts</span>
-                ) : posts.length ? posts.map(post => (
-                    <Link to={`/@${user.username}/${project.slug}/${post.slug}`} key={post.id} className="block my-4">
+                ) : posts.length ? posts.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).map(post => (
+                    <Link to={`/@${user.username}/${project.slug}/${post.slug}`} key={post.id} className="block my-12">
                         <h3 className="text-neutral-700 font-semibold text-xl">{post.title}</h3>
                         <div className="line-clamp-2 text-sm text-neutral-500 mt-2 mb-3"><span>{post.plaintext}</span></div>
                         <div className="flex items-center gap-x-3">
