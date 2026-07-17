@@ -58,10 +58,10 @@ export default function Post({loaderData}: Route.ComponentProps) {
                 <div className="md:max-w-60 border-t mt-8 pt-8 border-neutral-200 w-full md:mt-0 md:pt-0 md:border-0 pb-8">
                     <h3 className="font-medium text-neutral-700">Project</h3>
                     <Link to={`/@${user.username}/${project.slug}`} className="text-xl font-bold text-neutral-700 my-2 block">{project.name}</Link>
-                    <p className="text-neutral-500 mb-12">{project.description}</p>
-                    {projectPosts.items.length ? projectPosts.items.map(projectPost => (
-                        <Link to={`/@${user.username}/${project.slug}/${projectPost.slug}`} key={projectPost.id} className="block my-4 opacity-50 hover:opacity-100">
-                            <h4 className="font-semibold leading-none">{projectPost.title}</h4>
+                    <p className="text-neutral-500 mb-8">{project.description}</p>
+                    {projectPosts.items.length ? projectPosts.items.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).map(projectPost => (
+                        <Link to={`/@${user.username}/${project.slug}/${projectPost.slug}`} key={projectPost.id} className="block my-6 opacity-50 hover:opacity-100">
+                            <h4 className="font-semibold leading-[1.2]">{projectPost.title}</h4>
                             <div><span className="text-sm text-neutral-500">{new Date(projectPost.createdAt).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"})}</span></div>
                         </Link>
                     )) : (
