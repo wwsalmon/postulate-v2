@@ -81,11 +81,11 @@ export async function loader({request, params}: Route.LoaderArgs) {
     const isOwner = pb.authStore.record?.username === trueUsername;
 
     try {
-        const user = await pb.collection("users").getFirstListItem(`username = "${trueUsername}"`);
+        const user = await pb.collection("users").getFirstListItem(`username = "${encodeURIComponent(trueUsername)}"`);
         if (!user) throw data({message: "User not found", status: 404});
-        const project = await pb.collection("projects").getFirstListItem(`parent = "${user.id}" && slug = "${projectSlug}"`);
+        const project = await pb.collection("projects").getFirstListItem(`parent = "${user.id}" && slug = "${encodeURIComponent(projectSlug)}"`);
         if (!project) throw data({message: "Project not found", status: 404});
-        const post = await pb.collection("posts").getFirstListItem(`project = "${project.id}" && slug = "${postSlug}"`);
+        const post = await pb.collection("posts").getFirstListItem(`project = "${project.id}" && slug = "${encodeURIComponent(postSlug)}"`);
         if (!post) throw data({message: "Project not found", status: 404});
         const draftPost = isOwner ? await pb.collection("draftPosts").getFirstListItem(`post = "${post.id}"`) : null;
         const projectPosts = await pb.collection("posts").getList(1, 5, {filter: `project = "${project.id}"`});
