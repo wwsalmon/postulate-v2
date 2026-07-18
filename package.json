@@ -6,7 +6,10 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
@@ -18,7 +21,6 @@
     "deep-equal": "^2.2.3",
     "is-hotkey": "^0.2.0",
     "is-url": "^1.2.4",
-    "isbot": "^5.1.36",
     "katex": "^0.17.0",
     "lucide-react": "^1.24.0",
     "normalize-url": "^9.0.1",
@@ -39,6 +41,7 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.45.1",
     "@react-router/dev": "8.0.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.2.2",
@@ -50,8 +53,10 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/react-katex": "^3.0.4",
+    "isbot": "^5.2.1",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3"
+    "vite": "^8.0.3",
+    "wrangler": "^4.112.0"
   }
 }
